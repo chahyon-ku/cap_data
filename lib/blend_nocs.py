@@ -17,6 +17,9 @@ def get_vertex_color_layer(obj):
         max_coord = numpy.maximum(max_coord, vertex_coord)
         min_coord = numpy.minimum(min_coord, vertex_coord)
 
+    if numpy.sum(max_coord - min_coord == 0) > 0:
+        return None
+
     for loop_index, loop in enumerate(obj.data.loops):
         loop_vert_index = loop.vertex_index
 
@@ -46,7 +49,8 @@ def get_nocs_material(vertex_color_layer_name):
 def blend_nocs():
     for obj in bpy.data.objects:
         if obj.type == 'MESH':
-            if obj.name == 'Ground':
+            vertex_color_layer = get_vertex_color_layer(obj)
+            if vertex_color_layer is None:
                 emission_material = bpy.data.materials.new('emission_material')
                 emission_material.use_nodes = True
 
@@ -59,7 +63,6 @@ def blend_nocs():
                 obj.data.materials.append(emission_material)
                 obj.active_material = emission_material
             else:
-                vertex_color_layer = get_vertex_color_layer(obj)
                 nocs_material = get_nocs_material(vertex_color_layer.name)
 
                 obj.data.materials.clear()

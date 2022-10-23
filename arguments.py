@@ -24,11 +24,12 @@ def add_output_arguments(parser: argparse.ArgumentParser):
                         help="The index at which to start for numbering rendered images. Setting " +
                              "this to non-zero values allows you to distribute rendering across " +
                              "multiple machines and recombine the results later.")
-    parser.add_argument('--num_scenes', default=1, type=int,
+    parser.add_argument('--num_scenes', default=2, type=int,
                         help="The number of scenes to render")
-    parser.add_argument('--output_dir', default='./output/test/',
+    parser.add_argument('--output_dir', default='./output/',
                         help="The directory where output images will be stored. It will be " +
                              "created if it does not exist.")
+    parser.add_argument('--render_name', default='render', type=str)
 
 
 def add_render_arguments(parser: argparse.ArgumentParser):
