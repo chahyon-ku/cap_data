@@ -24,12 +24,15 @@ def add_output_arguments(parser: argparse.ArgumentParser):
                         help="The index at which to start for numbering rendered images. Setting " +
                              "this to non-zero values allows you to distribute rendering across " +
                              "multiple machines and recombine the results later.")
-    parser.add_argument('--num_images', default=10, type=int,
-                        help="The number of images to render")
+    parser.add_argument('--num_scenes', default=1, type=int,
+                        help="The number of scenes to render")
+    parser.add_argument('--output_dir', default='./output/test/',
+                        help="The directory where output images will be stored. It will be " +
+                             "created if it does not exist.")
 
 
 def add_render_arguments(parser: argparse.ArgumentParser):
-    parser.add_argument('--use_gpu', default=1, type=int,
+    parser.add_argument('--device_type', default='OPTIX', type=str, choices=('CPU', 'CUDA', 'OPTIX'),
                         help="Setting --use_gpu 1 enables GPU-accelerated rendering using CUDA. " +
                              "You must have an NVIDIA GPU with the CUDA toolkit installed for " +
                              "to work.")
@@ -49,3 +52,4 @@ def add_render_arguments(parser: argparse.ArgumentParser):
                              "quality of the rendered image but may affect the speed; CPU-based " +
                              "rendering may achieve better performance using smaller tile sizes " +
                              "while larger tile sizes may be optimal for GPU-based rendering.")
+    parser.add_argument('--modes', default=('rgba', 'nocs', 'depth'), type=int, nargs='+',)
