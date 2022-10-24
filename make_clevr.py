@@ -52,7 +52,7 @@ def get_object_data(scene_data: lib.data.scene_data.SceneData):
 def get_camera_data(scene_data: lib.data.scene_data.SceneData):
     name = f'cam{len(scene_data.cameras_data):02d}'
 
-    d = 7
+    d = 8
     r_x = 60
     r_y = 0
     r_z = 0
@@ -116,13 +116,13 @@ def main():
     parser.add_argument('--properties_json', default='data/properties/bunny_easy_properties.json')
     parser.add_argument('--shape_dir', default='data/shapes')
     parser.add_argument('--material_dir', default='data/materials')
-    parser.add_argument('--num_scenes', default=10, type=int)
+    parser.add_argument('--num_scenes', default=1000, type=int)
     parser.add_argument('--save_blend', default=False, type=bool)
     parser.add_argument('--output_dir', default='./output/clevr/')
     parser.add_argument('--render_name', default='render', type=str)
     parser.add_argument('--device_type', default='OPTIX', type=str, choices=('CPU', 'CUDA', 'OPTIX'))
-    parser.add_argument('--width', default=480, type=int)
-    parser.add_argument('--height', default=320, type=int)
+    parser.add_argument('--width', default=256, type=int)
+    parser.add_argument('--height', default=256, type=int)
     parser.add_argument('--render_num_samples', default=512, type=int)
     parser.add_argument('--render_min_bounces', default=8, type=int)
     parser.add_argument('--render_max_bounces', default=8, type=int)

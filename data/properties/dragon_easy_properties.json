@@ -1,0 +1,18 @@
+{
+  "shapes": {
+    "stanford_dragon": 0
+  },
+  "colors": {
+    "blue": [42, 75, 215]
+  },
+  "materials": {
+    "rubber": "Rubber"
+  },
+  "sizes": {
+    "2.0-2.0": [2.0, 2.0, 2.0]
+  },
+  "contain_mat": "../relations/rels_dou_contain.dat",
+  "support_mat": "../relations/rels_dou_support.dat",
+  "can_contain_mat": "../relations/rels_tri_contain.npy",
+  "can_support_mat": "../relations/rels_tri_support.npy"
+}
