@@ -83,6 +83,8 @@ def blend_render(render_data: lib.data.render_data.RenderData):
 
                         cv2.imwrite(bpy.context.scene.render.filepath + '.png', rgba)
 
+        bpy.ops.scene.delete()
+
 
 def blend_object(object_data: lib.data.object_data.ObjectData):
     if object_data.shape_pair[0] == 'plane':
