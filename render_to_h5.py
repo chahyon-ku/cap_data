@@ -23,7 +23,7 @@ if __name__ == '__main__':
                 render_group = h5f.create_group(render_data.name)
                 render_group.create_dataset('render_data', data=json.dumps(lib.data.render_data.to_object(render_data)))
                 for scene_name, scene_data in tqdm.tqdm(render_data.scenes_data.items()):
-                    scene_group = h5f.create_group(scene_name)
+                    scene_group = render_group.create_group(scene_name)
                     for camera_name in scene_data.cameras_data:
                         camera_group = scene_group.create_group(camera_name)
                         for mode in render_data.modes:
