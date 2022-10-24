@@ -126,7 +126,7 @@ def get_render_data(name, args) -> lib.data.render_data.RenderData:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--base_scene_blendfile', default='data/base_scene.blend')
+    parser.add_argument('--base_scene_blendfile', default=None)
     parser.add_argument('--properties_json', default='data/properties/cap_properties.json')
     parser.add_argument('--shape_dir', default='data/shapes')
     parser.add_argument('--material_dir', default='data/materials')
