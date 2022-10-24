@@ -1,7 +1,8 @@
 import numpy
 
 try:
-    import bpy, bpy_extras
+    import bpy
+    import bpy_extras
     from mathutils import Vector
 except ImportError as e:
     print(e)

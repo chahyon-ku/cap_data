@@ -4,10 +4,7 @@ import json
 import math
 import os
 import random
-
 import numpy
-
-import arguments
 import lib
 
 try:
@@ -37,7 +34,7 @@ def get_object_data(shape_name, scene_data: lib.data.scene_data.SceneData):
 
     material_pair = None
 
-    scale_pair = ('scale_down', numpy.array([0.1, 0.1, 0.1]))
+    scale_pair = ('scale_down', numpy.array([0.2, 0.2, 0.2]))
 
     x = random.uniform(-2.0, 2.0)
     y = random.uniform(-2.0, 2.0)
@@ -113,7 +110,7 @@ def get_render_data(name, args) -> lib.data.render_data.RenderData:
     cap_goal_pose = numpy.array([1.5, 0, 1, 0, 90, 0])
     bottle_goal_pose = numpy.array([-1.5, 0, 1, 0, 90, 0])
     for scene_i in range(args.num_scenes):
-        if scene_i == args.start_idx:
+        if scene_i == 0:
             scene_data = get_scene_data(f'{scene_i:06d}', args)
             render_data.scenes_data[scene_data.name] = scene_data
         else:
@@ -121,8 +118,8 @@ def get_render_data(name, args) -> lib.data.render_data.RenderData:
             scene_data.name = f'{scene_i:06d}'
             cap_pose_diff = cap_goal_pose - scene_data.objects_data['swell_cap_0'].pose
             bottle_pose_diff = bottle_goal_pose - scene_data.objects_data['swell_bottle_0'].pose
-            scene_data.objects_data['swell_cap_0'].pose += cap_pose_diff / (n_scenes - scene_i)
-            scene_data.objects_data['swell_bottle_0'].pose += bottle_pose_diff / (n_scenes - scene_i)
+            scene_data.objects_data['swell_cap_0'].pose += cap_pose_diff / (args.num_scenes - scene_i)
+            scene_data.objects_data['swell_bottle_0'].pose += bottle_pose_diff / (args.num_scenes - scene_i)
             render_data.scenes_data[scene_data.name] = scene_data
     return render_data
 
@@ -135,6 +132,7 @@ def main():
     parser.add_argument('--material_dir', default='data/materials')
     parser.add_argument('--num_scenes', default=10, type=int)
     parser.add_argument('--output_dir', default='./output/caps/')
+    parser.add_argument('--save_blend', default=False, type=bool)
     parser.add_argument('--render_name', default='render', type=str)
     parser.add_argument('--device_type', default='OPTIX', type=str, choices=('CPU', 'CUDA', 'OPTIX'))
     parser.add_argument('--width', default=480, type=int)
