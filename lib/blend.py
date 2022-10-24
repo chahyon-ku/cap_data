@@ -83,8 +83,6 @@ def blend_render(render_data: lib.data.render_data.RenderData):
 
                         cv2.imwrite(bpy.context.scene.render.filepath + '.png', rgba)
 
-        bpy.ops.scene.delete()
-
 
 def blend_object(object_data: lib.data.object_data.ObjectData):
     if object_data.shape_pair[0] == 'plane':
@@ -143,7 +141,8 @@ def blend_light(light_data: lib.data.light_data.LightData):
 
 def blend_scene(scene_data: lib.data.scene_data.SceneData):
     if scene_data.base_scene_blendfile is None:
-        bpy.data.scenes.new('scene')
+        bpy.ops.wm.read_factory_settings()
+        # bpy.data.scenes.new('scene')
         for object_name, object_value in bpy.data.objects.items():
             bpy.data.objects.remove(object_value)
     else:
