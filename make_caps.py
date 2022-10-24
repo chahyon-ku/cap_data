@@ -1,4 +1,5 @@
 import argparse
+import copy
 import json
 import math
 import os
@@ -10,7 +11,6 @@ import arguments
 import lib
 
 try:
-    import bpy, bpy_extras
     import mathutils
 except ImportError as e:
     print(e)
@@ -28,21 +28,19 @@ def get_ground_object_data(scene_data: lib.data.scene_data.SceneData):
     return object_data
 
 
-def get_object_data(scene_data: lib.data.scene_data.SceneData):
-    shape_name = random.choice([*scene_data.properties['shapes'].items()])[0]
+def get_object_data(shape_name, scene_data: lib.data.scene_data.SceneData):
     shape_value = os.path.join(scene_data.shape_dir, f'{shape_name}.blend', 'Object', shape_name)
     shape_pair = (shape_name, shape_value)
 
     color_pair = random.choice([*scene_data.properties['colors'].items()])
     color_pair = (color_pair[0], numpy.append(numpy.array(color_pair[1], dtype=float) / 255, 1.0))
 
-    material_pair = random.choice([*scene_data.properties['materials'].items()])
+    material_pair = None
 
-    scale_pair = random.choice([*scene_data.properties['sizes'].items()])
-    scale_pair = (scale_pair[0], numpy.array(scale_pair[1], dtype=float))
+    scale_pair = ('scale_down', numpy.array([0.1, 0.1, 0.1]))
 
-    x = random.uniform(-2.2, 2.2)
-    y = random.uniform(-2.2, 2.2)
+    x = random.uniform(-2.0, 2.0)
+    y = random.uniform(-2.0, 2.0)
     z = 0
     r_x = 0
     r_y = 0
@@ -58,7 +56,7 @@ def get_object_data(scene_data: lib.data.scene_data.SceneData):
 
 
 def get_camera_data(d, r_x, r_y, r_z, scene_data: lib.data.scene_data.SceneData):
-    name = f'cam{len(scene_data.cameras_data)}'
+    name = f'cam{len(scene_data.cameras_data):02d}'
 
     euler = mathutils.Euler((math.radians(r_x), math.radians(r_y), math.radians(r_z)), 'XYZ')
     pos = mathutils.Vector((0, 0, d))
@@ -75,9 +73,9 @@ def get_light_data(scene_data: lib.data.scene_data.SceneData):
     energy = 1000.0
 
     d = 10
-    r_x = 60
+    r_x = 45
     r_y = 0
-    r_z = 135
+    r_z = 0
     euler = mathutils.Euler((math.radians(r_x), math.radians(r_y), math.radians(r_z)))
     pos = mathutils.Vector((0, 0, d))
     pos.rotate(euler)
@@ -93,8 +91,10 @@ def get_scene_data(name, args) -> lib.data.scene_data.SceneData:
     ground_object_data = get_ground_object_data(scene_data)
     scene_data.objects_data[ground_object_data.name] = ground_object_data
 
-    object_data = get_object_data(scene_data)
-    scene_data.objects_data[object_data.name] = object_data
+    cap_data = get_object_data('swell_cap', scene_data)
+    scene_data.objects_data[cap_data.name] = cap_data
+    bottle_data = get_object_data('swell_bottle', scene_data)
+    scene_data.objects_data[bottle_data.name] = bottle_data
 
     for r_x in numpy.linspace(0, 60, 3):
         for r_z in numpy.linspace(0, 300, 6):
@@ -110,26 +110,48 @@ def get_scene_data(name, args) -> lib.data.scene_data.SceneData:
 def get_render_data(name, args) -> lib.data.render_data.RenderData:
     render_data = lib.data.render_data.from_args(name, args)
 
-    for scene_i in range(args.start_idx, args.start_idx + args.num_scenes):
-        scene_data = get_scene_data(f'{scene_i:06d}', args)
-        render_data.scenes_data[scene_data.name] = scene_data
+    cap_goal_pose = numpy.array([1.5, 0, 1, 0, 90, 0])
+    bottle_goal_pose = numpy.array([-1.5, 0, 1, 0, 90, 0])
+    for scene_i in range(args.num_scenes):
+        if scene_i == args.start_idx:
+            scene_data = get_scene_data(f'{scene_i:06d}', args)
+            render_data.scenes_data[scene_data.name] = scene_data
+        else:
+            scene_data = copy.deepcopy(scene_data)
+            scene_data.name = f'{scene_i:06d}'
+            cap_pose_diff = cap_goal_pose - scene_data.objects_data['swell_cap_0'].pose
+            bottle_pose_diff = bottle_goal_pose - scene_data.objects_data['swell_bottle_0'].pose
+            scene_data.objects_data['swell_cap_0'].pose += cap_pose_diff / (n_scenes - scene_i)
+            scene_data.objects_data['swell_bottle_0'].pose += bottle_pose_diff / (n_scenes - scene_i)
+            render_data.scenes_data[scene_data.name] = scene_data
     return render_data
 
 
 def main():
     parser = argparse.ArgumentParser()
-    arguments.add_input_arguments(parser)
-    arguments.add_output_arguments(parser)
-    arguments.add_render_arguments(parser)
+    parser.add_argument('--base_scene_blendfile', default='data/base_scene.blend')
+    parser.add_argument('--properties_json', default='data/properties/cap_properties.json')
+    parser.add_argument('--shape_dir', default='data/shapes')
+    parser.add_argument('--material_dir', default='data/materials')
+    parser.add_argument('--num_scenes', default=10, type=int)
+    parser.add_argument('--output_dir', default='./output/caps/')
+    parser.add_argument('--render_name', default='render', type=str)
+    parser.add_argument('--device_type', default='OPTIX', type=str, choices=('CPU', 'CUDA', 'OPTIX'))
+    parser.add_argument('--width', default=480, type=int)
+    parser.add_argument('--height', default=320, type=int)
+    parser.add_argument('--render_num_samples', default=512, type=int)
+    parser.add_argument('--render_min_bounces', default=8, type=int)
+    parser.add_argument('--render_max_bounces', default=8, type=int)
+    parser.add_argument('--render_tile_size', default=256, type=int)
+    parser.add_argument('--modes', default=('rgba', 'nocs', 'depth'), type=int, nargs='+')
     args = parser.parse_args()
-    args.base_scene_blendfile = None
-    args.render_name = 'cap'
 
-    render_data = get_render_data(args.render_name, args)
+    for render_i in range(1):
+        render_data = get_render_data(f'{render_i:06d}', args)
 
-    os.makedirs(os.path.join(args.output_dir), exist_ok=True)
-    with open(os.path.join(render_data.output_dir, f'{render_data.name}.json'), 'w') as f:
-        json.dump(lib.data.render_data.to_object(render_data), f, indent=2)
+        os.makedirs(os.path.join(args.output_dir), exist_ok=True)
+        with open(os.path.join(render_data.output_dir, f'{render_data.name}.json'), 'w') as f:
+            json.dump(lib.data.render_data.to_object(render_data), f, indent=2)
 
 
 if __name__ == '__main__':

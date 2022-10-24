@@ -1,3 +1,5 @@
+import shutil
+
 import numpy
 
 import lib.data
@@ -15,6 +17,8 @@ except ImportError as e:
 
 
 def blend_render(render_data: lib.data.render_data.RenderData):
+    os.makedirs(f'{render_data.output_dir}/{render_data.name}', exist_ok=True)
+    shutil.rmtree(f'{render_data.output_dir}/{render_data.name}')
     os.makedirs(f'{render_data.output_dir}/{render_data.name}', exist_ok=True)
     for scene_name, scene_data in render_data.scenes_data.items():
         blend_scene(scene_data)
@@ -69,7 +73,7 @@ def blend_render(render_data: lib.data.render_data.RenderData):
                         os.remove(bpy.context.scene.render.filepath + '.exr')
 
                         r = np.ceil(np.log2(zs))
-                        g = zs / np.power(r, 2)
+                        g = zs / np.power(2, r)
                         b = g * 256 - np.trunc(g * 256)
                         a = b * 256 - np.trunc(b * 256)
                         rgba = np.stack([r + 128, g * 256, b * 256, a * 256], axis=-1).astype(np.uint8)
@@ -79,12 +83,30 @@ def blend_render(render_data: lib.data.render_data.RenderData):
 
 def blend_object(object_data: lib.data.object_data.ObjectData):
     if object_data.shape_pair[0] == 'plane':
-        bpy.ops.mesh.primitive_plane_add(size=50.0)
+        bpy.ops.mesh.primitive_plane_add(size=1000.0)
         bpy.data.objects['Plane'].name = object_data.name
     else:
         bpy.ops.wm.append(filename=object_data.shape_pair[1])
         bpy.data.objects[object_data.shape_pair[0]].name = object_data.name
     obj = bpy.data.objects[object_data.name]
+
+    if object_data.material_pair is not None:
+        material_name = f'{object_data.material_pair[1]}_{object_data.color_pair[0]}'
+        if material_name not in bpy.data.materials:
+            if material_name.startswith('solid'):
+                material = bpy.data.materials.new(material_name)
+                material.use_nodes = True
+            else:
+                material = bpy.data.materials.new(material_name)
+                material.use_nodes = True
+                group_node = material.node_tree.nodes.new('ShaderNodeGroup')
+                group_node.node_tree = bpy.data.node_groups[object_data.material_pair[1]]
+                group_node.inputs['Color'].default_value = object_data.color_pair[1]
+                material.node_tree.links.new(group_node.outputs['Shader'],
+                                             material.node_tree.nodes['Material Output'].inputs['Surface'])
+
+        obj.data.materials.clear()
+        obj.data.materials.append(bpy.data.materials[material_name])
 
     obj.location = object_data.pose[:3]
     obj.rotation_euler = numpy.radians(object_data.pose[3:])
@@ -93,26 +115,7 @@ def blend_object(object_data: lib.data.object_data.ObjectData):
     for polygon_index, polygon in enumerate(obj.data.polygons):
         for vertex_index, vertex in enumerate(polygon.vertices):
             min_z = min(min_z, obj.data.vertices[vertex].co[2])
-    print(min_z)
-    obj.location[2] = obj.location[2] - min_z * obj.scale[2]
-
-    material_name = f'{object_data.material_pair[1]}_{object_data.color_pair[0]}'
-    if material_name not in bpy.data.materials:
-        if material_name.startswith('solid'):
-            material = bpy.data.materials.new(material_name)
-            material.use_nodes = True
-            print(material.node_tree.nodes)
-        else:
-            material = bpy.data.materials.new(material_name)
-            material.use_nodes = True
-            group_node = material.node_tree.nodes.new('ShaderNodeGroup')
-            group_node.node_tree = bpy.data.node_groups[object_data.material_pair[1]]
-            group_node.inputs['Color'].default_value = object_data.color_pair[1]
-            material.node_tree.links.new(group_node.outputs['Shader'],
-                                         material.node_tree.nodes['Material Output'].inputs['Surface'])
-
-    obj.data.materials.clear()
-    obj.data.materials.append(bpy.data.materials[material_name])
+    obj.location[2] = obj.location[2] - (min_z * obj.scale[2])
 
 
 def blend_camera(camera_data: lib.data.camera_data.CameraData):

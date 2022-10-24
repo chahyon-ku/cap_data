@@ -1,0 +1,15 @@
+{
+  "shapes": {
+    "swell_bottle": 0,
+    "swell_cap": 1
+  },
+  "colors": {
+    "blue": [42, 75, 215]
+  },
+  "materials": {
+    "rubber": "Rubber"
+  },
+  "sizes": {
+    "1.0-1.0": [1.0, 1.0, 1.0]
+  }
+}
