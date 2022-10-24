@@ -23,6 +23,9 @@ def blend_render(render_data: lib.data.render_data.RenderData):
     for scene_name, scene_data in render_data.scenes_data.items():
         blend_scene(scene_data)
 
+        if render_data.save_blend:
+            bpy.ops.wm.save_as_mainfile(filepath=f'{render_data.output_dir}/{render_data.name}/{scene_name}.blend')
+
         bpy.context.scene.render.engine = "CYCLES"
         bpy.context.scene.render.resolution_x = render_data.width
         bpy.context.scene.render.resolution_y = render_data.height
@@ -114,8 +117,9 @@ def blend_object(object_data: lib.data.object_data.ObjectData):
     min_z = 999999
     for polygon_index, polygon in enumerate(obj.data.polygons):
         for vertex_index, vertex in enumerate(polygon.vertices):
-            min_z = min(min_z, obj.data.vertices[vertex].co[2])
-    obj.location[2] = obj.location[2] - (min_z * obj.scale[2])
+            z = obj.data.vertices[vertex].co[2] * obj.scale[2]
+            min_z = min(min_z, z)
+    obj.location[2] = obj.location[2] - min_z
 
 
 def blend_camera(camera_data: lib.data.camera_data.CameraData):

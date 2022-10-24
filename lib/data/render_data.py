@@ -7,21 +7,22 @@ import lib.data.scene_data
 
 
 def empty():
-    return RenderData(None, None, None, None, None, None, None, None, None, None)
+    return RenderData(None, None, None, None, None, None, None, None, None, None, None)
 
 
 def from_args(name, args):
     output_dir = os.path.abspath(args.output_dir)
-    return RenderData(name, output_dir, args.width, args.height, args.render_tile_size, args.device_type,
+    return RenderData(name, output_dir, args.save_blend, args.width, args.height, args.render_tile_size, args.device_type,
                       args.render_num_samples, args.render_min_bounces, args.render_max_bounces, args.modes)
 
 
 class RenderData:
-    def __init__(self, name, output_dir, width, height, render_tile_size, device_type, render_num_samples,
+    def __init__(self, name, output_dir, save_blend, width, height, render_tile_size, device_type, render_num_samples,
                  render_min_bounces, render_max_bounces, modes):
         self.name = name
         
         self.output_dir = output_dir
+        self.save_blend = save_blend
         self.width = width
         self.height = height
         self.render_tile_size = render_tile_size

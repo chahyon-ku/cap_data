@@ -7,7 +7,7 @@ import lib
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--renders_dir', type=str, default='output/caps2')
+    parser.add_argument('--renders_dir', type=str, default='output/clevr')
     args = parser.parse_args()
 
     start_time = time.time()

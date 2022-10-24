@@ -75,7 +75,7 @@ def get_light_data(scene_data: lib.data.scene_data.SceneData):
     d = 10
     r_x = 45
     r_y = 0
-    r_z = 0
+    r_z = 45
     euler = mathutils.Euler((math.radians(r_x), math.radians(r_y), math.radians(r_z)))
     pos = mathutils.Vector((0, 0, d))
     pos.rotate(euler)

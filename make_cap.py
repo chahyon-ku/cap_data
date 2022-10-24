@@ -56,7 +56,7 @@ def get_object_data(shape_name, scene_data: lib.data.scene_data.SceneData):
 
 
 def get_camera_data(d, r_x, r_y, r_z, scene_data: lib.data.scene_data.SceneData):
-    name = f'cam{len(scene_data.cameras_data)}'
+    name = f'cam{len(scene_data.cameras_data):02d}'
 
     euler = mathutils.Euler((math.radians(r_x), math.radians(r_y), math.radians(r_z)), 'XYZ')
     pos = mathutils.Vector((0, 0, d))
@@ -75,7 +75,7 @@ def get_light_data(scene_data: lib.data.scene_data.SceneData):
     d = 10
     r_x = 45
     r_y = 0
-    r_z = 0
+    r_z = 45
     euler = mathutils.Euler((math.radians(r_x), math.radians(r_y), math.radians(r_z)))
     pos = mathutils.Vector((0, 0, d))
     pos.rotate(euler)
