@@ -38,10 +38,10 @@ def get_object_data(shape_name, scene_data: lib.data.scene_data.SceneData):
 
     x = random.uniform(-2.0, 2.0)
     y = random.uniform(-2.0, 2.0)
-    z = 0
+    z = 1.3085 if shape_name == 'swell_bottle' else 0.2796
     r_x = 0
     r_y = 0
-    r_z = random.uniform(0, 360)
+    r_z = 0
     pose = numpy.array([x, y, z, r_x, r_y, r_z], dtype=float)
 
     shape_count = sum([1 for object_name, object_data in scene_data.objects_data.items()
@@ -93,10 +93,12 @@ def get_scene_data(name, args) -> lib.data.scene_data.SceneData:
     bottle_data = get_object_data('swell_bottle', scene_data)
     scene_data.objects_data[bottle_data.name] = bottle_data
 
-    for r_x in numpy.linspace(0, 60, 3):
+    for r_x in numpy.linspace(60, 0, 3):
         for r_z in numpy.linspace(0, 300, 6):
             camera_data = get_camera_data(10, r_x, 0, r_z, scene_data)
             scene_data.cameras_data[camera_data.name] = camera_data
+            break
+        break
 
     light_data = get_light_data(scene_data)
     scene_data.lights_data[light_data.name] = light_data
@@ -107,8 +109,8 @@ def get_scene_data(name, args) -> lib.data.scene_data.SceneData:
 def get_render_data(name, args) -> lib.data.render_data.RenderData:
     render_data = lib.data.render_data.from_args(name, args)
 
-    cap_goal_pose = numpy.array([1.5, 0, 1, 0, 90, 0])
-    bottle_goal_pose = numpy.array([-1.5, 0, 1, 0, 90, 0])
+    cap_goal_pose = numpy.array([0.66, 0, 1, 0, 90, 0])
+    bottle_goal_pose = numpy.array([-0.66, 0, 1, 0, 90, 0])
     for scene_i in range(args.num_scenes):
         if scene_i == 0:
             scene_data = get_scene_data(f'{scene_i:06d}', args)
@@ -133,7 +135,6 @@ def main():
     parser.add_argument('--num_scenes', default=10, type=int)
     parser.add_argument('--output_dir', default='./output/caps/')
     parser.add_argument('--save_blend', default=False, type=bool)
-    parser.add_argument('--render_name', default='render', type=str)
     parser.add_argument('--device_type', default='OPTIX', type=str, choices=('CPU', 'CUDA', 'OPTIX'))
     parser.add_argument('--width', default=480, type=int)
     parser.add_argument('--height', default=320, type=int)

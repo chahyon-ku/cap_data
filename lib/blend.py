@@ -114,12 +114,12 @@ def blend_object(object_data: lib.data.object_data.ObjectData):
     obj.location = object_data.pose[:3]
     obj.rotation_euler = numpy.radians(object_data.pose[3:])
     obj.scale = np.array(obj.scale) * object_data.scale_pair[1]
-    min_z = 999999
-    for polygon_index, polygon in enumerate(obj.data.polygons):
-        for vertex_index, vertex in enumerate(polygon.vertices):
-            z = obj.data.vertices[vertex].co[2] * obj.scale[2]
-            min_z = min(min_z, z)
-    obj.location[2] = obj.location[2] - min_z
+    # min_z = 999999
+    # for polygon_index, polygon in enumerate(obj.data.polygons):
+    #     for vertex_index, vertex in enumerate(polygon.vertices):
+    #         z = obj.data.vertices[vertex].co[2] * obj.scale[2]
+    #         min_z = min(min_z, z)
+    # obj.location[2] = obj.location[2] - min_z
 
 
 def blend_camera(camera_data: lib.data.camera_data.CameraData):
