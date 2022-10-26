@@ -97,8 +97,7 @@ def get_scene_data(name, args) -> lib.data.scene_data.SceneData:
         for r_z in numpy.linspace(0, 300, 6):
             camera_data = get_camera_data(10, r_x, 0, r_z, scene_data)
             scene_data.cameras_data[camera_data.name] = camera_data
-            break
-        break
+            
 
     light_data = get_light_data(scene_data)
     scene_data.lights_data[light_data.name] = light_data
@@ -135,7 +134,7 @@ def main():
     parser.add_argument('--num_scenes', default=10, type=int)
     parser.add_argument('--output_dir', default='./output/caps/')
     parser.add_argument('--save_blend', default=False, type=bool)
-    parser.add_argument('--device_type', default='OPTIX', type=str, choices=('CPU', 'CUDA', 'OPTIX'))
+    parser.add_argument('--device_type', default='CUDA', type=str, choices=('CPU', 'CUDA', 'OPTIX'))
     parser.add_argument('--width', default=480, type=int)
     parser.add_argument('--height', default=320, type=int)
     parser.add_argument('--render_num_samples', default=512, type=int)
@@ -145,7 +144,7 @@ def main():
     parser.add_argument('--modes', default=('rgba', 'nocs', 'depth'), type=int, nargs='+')
     args = parser.parse_args()
 
-    for render_i in range(1):
+    for render_i in range(100):
         render_data = get_render_data(f'{render_i:06d}', args)
 
         os.makedirs(os.path.join(args.output_dir), exist_ok=True)
