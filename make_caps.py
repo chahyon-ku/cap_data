@@ -136,7 +136,7 @@ def get_render_data(name, args) -> lib.data.render_data.RenderData:
             scene_data.objects_data['swell_cap_0'].pose[3:] = numpy.array([math.degrees(euler.x),
                                                                            math.degrees(euler.y),
                                                                            math.degrees(euler.z)])
-            scene_data.objects_data['swell_cap_0'].pose[2] -= 0.01
+            scene_data.objects_data['swell_cap_0'].pose[1] -= 0.01
             render_data.scenes_data[scene_data.name] = scene_data
 
     return render_data
