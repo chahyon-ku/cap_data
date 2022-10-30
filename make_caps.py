@@ -98,7 +98,6 @@ def get_scene_data(name, args, reset_scene) -> lib.data.scene_data.SceneData:
             camera_data = get_camera_data(10, r_x, 0, r_z, scene_data)
             scene_data.cameras_data[camera_data.name] = camera_data
 
-
     light_data = get_light_data(scene_data)
     scene_data.lights_data[light_data.name] = light_data
 
@@ -154,7 +153,7 @@ def main():
     parser.add_argument('--material_dir', default='data/materials')
 
     # output
-    parser.add_argument('--num_renders', default=1, type=int)
+    parser.add_argument('--num_renders', default=100, type=int)
     parser.add_argument('--num_scenes', default=10, type=int)
     parser.add_argument('--output_dir', default='./output/caps/')
     parser.add_argument('--save_blend', default=False, type=bool)
