@@ -157,7 +157,7 @@ def main():
     parser.add_argument('--num_scenes', default=10, type=int)
     parser.add_argument('--output_dir', default='./output/caps/')
     parser.add_argument('--save_blend', default=False, type=bool)
-    parser.add_argument('--device_type', default='OPTIX', type=str, choices=('CPU', 'CUDA', 'OPTIX'))
+    parser.add_argument('--device_type', default='CUDA', type=str, choices=('CPU', 'CUDA', 'OPTIX'))
     parser.add_argument('--modes', default=('rgba', 'nocs', 'depth'), type=int, nargs='+')
 
     # image
