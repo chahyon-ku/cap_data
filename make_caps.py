@@ -97,8 +97,7 @@ def get_scene_data(name, args, reset_scene) -> lib.data.scene_data.SceneData:
         for r_z in numpy.linspace(0, 300, 6):
             camera_data = get_camera_data(10, r_x, 0, r_z, scene_data)
             scene_data.cameras_data[camera_data.name] = camera_data
-            break
-        break
+
 
     light_data = get_light_data(scene_data)
     scene_data.lights_data[light_data.name] = light_data
