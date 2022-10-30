@@ -11,8 +11,7 @@ def empty():
 
 
 def from_args(name, args):
-    output_dir = os.path.abspath(args.output_dir)
-    return RenderData(name, output_dir, args.save_blend, args.width, args.height, args.render_tile_size, args.device_type,
+    return RenderData(name, args.output_dir, args.save_blend, args.width, args.height, args.render_tile_size, args.device_type,
                       args.render_num_samples, args.render_min_bounces, args.render_max_bounces, args.modes)
 
 

@@ -10,6 +10,8 @@ except ImportError as e:
 
 def get_vertex_color_layer(obj):
     vertex_color_layer = obj.data.vertex_colors.new()
+    if vertex_color_layer is None:
+        print(obj.name)
 
     min_coord = numpy.zeros(3)
     max_coord = numpy.zeros(3)
@@ -31,8 +33,21 @@ def get_vertex_color_layer(obj):
     return vertex_color_layer
 
 
+def get_emission_material():
+    emission_count = sum([1 for material_name in bpy.data.materials.keys() if material_name.startswith('emission_material')])
+    emission_material = bpy.data.materials.new(f'emission_material_{emission_count}')
+    emission_material.use_nodes = True
+
+    shader_node_emission = emission_material.node_tree.nodes.new('ShaderNodeEmission')
+    material_output = emission_material.node_tree.nodes.get('Material Output')
+
+    emission_material.node_tree.links.new(shader_node_emission.outputs['Emission'], material_output.inputs['Surface'])
+    return emission_material
+
+
 def get_nocs_material(vertex_color_layer_name):
-    nocs_material = bpy.data.materials.new('nocs_material')
+    nocs_count = sum([1 for material_name in bpy.data.materials.keys() if material_name.startswith('nocs_material')])
+    nocs_material = bpy.data.materials.new(f'nocs_material_{nocs_count}')
     nocs_material.use_nodes = True
 
     shader_node_vertex_color = nocs_material.node_tree.nodes.new('ShaderNodeVertexColor')
@@ -50,23 +65,14 @@ def get_nocs_material(vertex_color_layer_name):
 def blend_nocs():
     for obj in bpy.data.objects:
         if obj.type == 'MESH':
+            obj.data.materials.clear()
+
             vertex_color_layer = get_vertex_color_layer(obj)
             if vertex_color_layer is None:
-                emission_material = bpy.data.materials.new('emission_material')
-                emission_material.use_nodes = True
-
-                shader_node_emission = emission_material.node_tree.nodes.new('ShaderNodeEmission')
-                material_output = emission_material.node_tree.nodes.get('Material Output')
-
-                emission_material.node_tree.links.new(shader_node_emission.outputs['Emission'], material_output.inputs['Surface'])
-
-                obj.data.materials.clear()
+                emission_material = get_emission_material()
                 obj.data.materials.append(emission_material)
                 obj.active_material = emission_material
             else:
                 nocs_material = get_nocs_material(vertex_color_layer.name)
-
-                obj.data.materials.clear()
                 obj.data.materials.append(nocs_material)
                 obj.active_material = nocs_material
-            

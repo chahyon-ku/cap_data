@@ -82,8 +82,8 @@ def get_light_data(scene_data: lib.data.scene_data.SceneData):
     return light_data
 
 
-def get_scene_data(name, args) -> lib.data.scene_data.SceneData:
-    scene_data = lib.data.scene_data.from_args(name, args)
+def get_scene_data(name, args, reset_scene) -> lib.data.scene_data.SceneData:
+    scene_data = lib.data.scene_data.from_args(name, args, reset_scene)
 
     ground_object_data = get_ground_object_data(scene_data)
     scene_data.objects_data[ground_object_data.name] = ground_object_data
@@ -109,43 +109,69 @@ def get_scene_data(name, args) -> lib.data.scene_data.SceneData:
 def get_render_data(name, args) -> lib.data.render_data.RenderData:
     render_data = lib.data.render_data.from_args(name, args)
 
-    cap_goal_pose = numpy.array([0.66, 0, 1, 0, 90, 0])
-    bottle_goal_pose = numpy.array([-0.66, 0, 1, 0, 90, 0])
-    for scene_i in range(args.num_scenes):
-        if scene_i == 0:
-            scene_data = get_scene_data(f'{scene_i:06d}', args)
+    cap_goal_pose = numpy.array([[random.uniform(0.75, 2), 0, 1, 0, 90, 0],
+                                 [0.65, 0, 1, 0, 90, 0]])
+    bottle_goal_pose = numpy.array([[-random.uniform(0.75, 2), 0, 1, 0, 90, 0],
+                                    [-0.65, 0, 1, 0, 90, 0]])
+    for i_scene in range(3 * args.num_scenes):
+        i_stage = i_scene // args.num_scenes
+        if i_scene == 0:
+            scene_data = get_scene_data(f'{i_scene:06d}', args, True)
+            render_data.scenes_data[scene_data.name] = scene_data
+        elif i_stage < 2:
+            scene_data = copy.deepcopy(scene_data)
+            scene_data.name = f'{i_scene:06d}'
+            scene_data.reset_scene = False
+            cap_pose_diff = cap_goal_pose[i_stage] - scene_data.objects_data['swell_cap_0'].pose
+            bottle_pose_diff = bottle_goal_pose[i_stage] - scene_data.objects_data['swell_bottle_0'].pose
+            scene_data.objects_data['swell_cap_0'].pose += cap_pose_diff / (args.num_scenes - i_scene % args.num_scenes)
+            scene_data.objects_data['swell_bottle_0'].pose += bottle_pose_diff / (args.num_scenes - i_scene % args.num_scenes)
             render_data.scenes_data[scene_data.name] = scene_data
         else:
             scene_data = copy.deepcopy(scene_data)
-            scene_data.name = f'{scene_i:06d}'
-            cap_pose_diff = cap_goal_pose - scene_data.objects_data['swell_cap_0'].pose
-            bottle_pose_diff = bottle_goal_pose - scene_data.objects_data['swell_bottle_0'].pose
-            scene_data.objects_data['swell_cap_0'].pose += cap_pose_diff / (args.num_scenes - scene_i)
-            scene_data.objects_data['swell_bottle_0'].pose += bottle_pose_diff / (args.num_scenes - scene_i)
+            scene_data.name = f'{i_scene:06d}'
+            scene_data.reset_scene = False
+            euler = mathutils.Euler((math.radians(0), math.radians(0), math.radians(-10)))
+            euler.rotate(mathutils.Euler((math.radians(scene_data.objects_data['swell_cap_0'].pose[3]),
+                                          math.radians(scene_data.objects_data['swell_cap_0'].pose[4]),
+                                          math.radians(scene_data.objects_data['swell_cap_0'].pose[5]))))
+            scene_data.objects_data['swell_cap_0'].pose[3:] = numpy.array([math.degrees(euler.x),
+                                                                           math.degrees(euler.y),
+                                                                           math.degrees(euler.z)])
+            scene_data.objects_data['swell_cap_0'].pose[2] -= 0.01
             render_data.scenes_data[scene_data.name] = scene_data
+
     return render_data
 
 
 def main():
     parser = argparse.ArgumentParser()
+    # scene
     parser.add_argument('--base_scene_blendfile', default=None)
+
+    # object
     parser.add_argument('--properties_json', default='data/properties/cap_properties.json')
     parser.add_argument('--shape_dir', default='data/shapes')
     parser.add_argument('--material_dir', default='data/materials')
+
+    # output
+    parser.add_argument('--num_renders', default=1, type=int)
     parser.add_argument('--num_scenes', default=10, type=int)
     parser.add_argument('--output_dir', default='./output/caps/')
     parser.add_argument('--save_blend', default=False, type=bool)
     parser.add_argument('--device_type', default='OPTIX', type=str, choices=('CPU', 'CUDA', 'OPTIX'))
+    parser.add_argument('--modes', default=('rgba', 'nocs', 'depth'), type=int, nargs='+')
+
+    # image
     parser.add_argument('--width', default=480, type=int)
     parser.add_argument('--height', default=320, type=int)
     parser.add_argument('--render_num_samples', default=512, type=int)
     parser.add_argument('--render_min_bounces', default=8, type=int)
     parser.add_argument('--render_max_bounces', default=8, type=int)
     parser.add_argument('--render_tile_size', default=256, type=int)
-    parser.add_argument('--modes', default=('rgba', 'nocs', 'depth'), type=int, nargs='+')
     args = parser.parse_args()
 
-    for render_i in range(1):
+    for render_i in range(args.num_renders):
         render_data = get_render_data(f'{render_i:06d}', args)
 
         os.makedirs(os.path.join(args.output_dir), exist_ok=True)
