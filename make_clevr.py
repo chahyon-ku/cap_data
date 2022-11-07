@@ -83,8 +83,8 @@ def get_light_data(scene_data: lib.data.scene_data.SceneData):
     return light_data
 
 
-def get_scene_data(name, args) -> lib.data.scene_data.SceneData:
-    scene_data = lib.data.scene_data.from_args(name, args)
+def get_scene_data(name, args, reset_scene) -> lib.data.scene_data.SceneData:
+    scene_data = lib.data.scene_data.from_args(name, args, reset_scene)
 
     ground_object_data = get_ground_object_data(scene_data)
     scene_data.objects_data[ground_object_data.name] = ground_object_data
@@ -105,7 +105,7 @@ def get_render_data(name, args) -> lib.data.render_data.RenderData:
     render_data = lib.data.render_data.from_args(name, args)
 
     for scene_i in range(args.num_scenes):
-        scene_data = get_scene_data(f'{scene_i:06d}', args)
+        scene_data = get_scene_data(f'{scene_i:06d}', args, scene_i == 0)
         render_data.scenes_data[scene_data.name] = scene_data
     return render_data
 
@@ -116,7 +116,7 @@ def main():
     parser.add_argument('--properties_json', default='data/properties/bunny_easy_properties.json')
     parser.add_argument('--shape_dir', default='data/shapes')
     parser.add_argument('--material_dir', default='data/materials')
-    parser.add_argument('--num_scenes', default=1000, type=int)
+    parser.add_argument('--num_scenes', default=5000, type=int)
     parser.add_argument('--save_blend', default=False, type=bool)
     parser.add_argument('--output_dir', default='./output/clevr/')
     parser.add_argument('--render_name', default='render', type=str)

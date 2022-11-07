@@ -34,11 +34,11 @@ def get_object_data(shape_name, scene_data: lib.data.scene_data.SceneData):
 
     material_pair = None
 
-    scale_pair = ('scale_down', numpy.array([0.2, 0.2, 0.2]))
+    scale_pair = ('scale_down', numpy.array([0.15, 0.15, 0.15]))
 
     x = random.uniform(-2.0, 2.0)
     y = random.uniform(-2.0, 2.0)
-    z = 1.3085 if shape_name == 'swell_bottle' else 0.2796
+    z = 1.3085 * 0.75 if shape_name == 'swell_bottle' else 0.2796 * 0.75
     r_x = 0
     r_y = 0
     r_z = 0
@@ -106,24 +106,21 @@ def get_scene_data(name, args, reset_scene) -> lib.data.scene_data.SceneData:
 
 def get_render_data(name, args) -> lib.data.render_data.RenderData:
     render_data = lib.data.render_data.from_args(name, args)
-
-    cap_goal_pose = numpy.array([[random.uniform(0.75, 2), 0, 1, 0, 90, 0],
-                                 [0.65, 0, 1, 0, 90, 0]])
-    bottle_goal_pose = numpy.array([[-random.uniform(0.75, 2), 0, 1, 0, 90, 0],
-                                    [-0.65, 0, 1, 0, 90, 0]])
     for i_scene in range(3 * args.num_scenes):
         i_stage = i_scene // args.num_scenes
         if i_scene == 0:
             scene_data = get_scene_data(f'{i_scene:06d}', args, True)
             render_data.scenes_data[scene_data.name] = scene_data
+
+            bottle_pose = scene_data.objects_data['swell_bottle_0'].pose
+            cap_goal_pose = numpy.array([[bottle_pose[0], bottle_pose[1], (1.3085 * 1.5) * random.uniform(1.1, 1.5), 0, 0, 0],
+                                         [bottle_pose[0], bottle_pose[1], 1.3085 * 1.5, 0, 0, 0]])
         elif i_stage < 2:
             scene_data = copy.deepcopy(scene_data)
             scene_data.name = f'{i_scene:06d}'
             scene_data.reset_scene = False
             cap_pose_diff = cap_goal_pose[i_stage] - scene_data.objects_data['swell_cap_0'].pose
-            bottle_pose_diff = bottle_goal_pose[i_stage] - scene_data.objects_data['swell_bottle_0'].pose
             scene_data.objects_data['swell_cap_0'].pose += cap_pose_diff / (args.num_scenes - i_scene % args.num_scenes)
-            scene_data.objects_data['swell_bottle_0'].pose += bottle_pose_diff / (args.num_scenes - i_scene % args.num_scenes)
             render_data.scenes_data[scene_data.name] = scene_data
         else:
             scene_data = copy.deepcopy(scene_data)
@@ -136,7 +133,7 @@ def get_render_data(name, args) -> lib.data.render_data.RenderData:
             scene_data.objects_data['swell_cap_0'].pose[3:] = numpy.array([math.degrees(euler.x),
                                                                            math.degrees(euler.y),
                                                                            math.degrees(euler.z)])
-            scene_data.objects_data['swell_cap_0'].pose[0] -= 0.01
+            scene_data.objects_data['swell_cap_0'].pose[2] -= 0.01
             render_data.scenes_data[scene_data.name] = scene_data
 
     return render_data
@@ -153,9 +150,9 @@ def main():
     parser.add_argument('--material_dir', default='data/materials')
 
     # output
-    parser.add_argument('--num_renders', default=10, type=int)
+    parser.add_argument('--num_renders', default=1, type=int)
     parser.add_argument('--num_scenes', default=10, type=int)
-    parser.add_argument('--output_dir', default='./output/caps/')
+    parser.add_argument('--output_dir', default='./output/caps_onlycap/')
     parser.add_argument('--save_blend', default=False, type=bool)
     parser.add_argument('--device_type', default='OPTIX', type=str, choices=('CPU', 'CUDA', 'OPTIX'))
     parser.add_argument('--modes', default=('rgba', 'nocs', 'depth'), type=int, nargs='+')
