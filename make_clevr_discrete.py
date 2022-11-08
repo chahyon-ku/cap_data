@@ -25,7 +25,7 @@ def get_ground_object_data(scene_data: lib.data.scene_data.SceneData):
     return object_data
 
 
-def get_object_data(scene_data: lib.data.scene_data.SceneData):
+def get_object_data(scene_data: lib.data.scene_data.SceneData, rotation):
     shape_name = random.choice([*scene_data.properties['shapes'].items()])[0]
     shape_value = os.path.join(scene_data.shape_dir, f'{shape_name}.blend', 'Object', shape_name)
     shape_pair = (shape_name, shape_value)
@@ -39,7 +39,8 @@ def get_object_data(scene_data: lib.data.scene_data.SceneData):
     scale_pair = (scale_pair[0], numpy.array(scale_pair[1], dtype=float))
 
     pose_range = numpy.array(scene_data.properties['pose_range'])
-    pose = numpy.random.uniform(pose_range[:, 0], pose_range[:, 1])
+    transform = numpy.random.uniform(pose_range[:3, 0], pose_range[:3, 1])
+    pose = numpy.concatenate((transform, rotation))
 
     shape_count = sum([1 for object_name, object_data in scene_data.objects_data.items()
                        if object_data.name.startswith(shape_name)])
@@ -83,13 +84,13 @@ def get_light_data(scene_data: lib.data.scene_data.SceneData):
     return light_data
 
 
-def get_scene_data(name, args, reset_scene) -> lib.data.scene_data.SceneData:
+def get_scene_data(name, args, reset_scene, rotation) -> lib.data.scene_data.SceneData:
     scene_data = lib.data.scene_data.from_args(name, args, reset_scene)
 
     ground_object_data = get_ground_object_data(scene_data)
     scene_data.objects_data[ground_object_data.name] = ground_object_data
 
-    object_data = get_object_data(scene_data)
+    object_data = get_object_data(scene_data, rotation)
     scene_data.objects_data[object_data.name] = object_data
 
     camera_data = get_camera_data(scene_data)
@@ -104,23 +105,34 @@ def get_scene_data(name, args, reset_scene) -> lib.data.scene_data.SceneData:
 def get_render_data(name, args) -> lib.data.render_data.RenderData:
     render_data = lib.data.render_data.from_args(name, args)
 
-    for scene_i in range(args.num_scenes):
-        scene_data = get_scene_data(f'{scene_i:06d}', args, scene_i == 0)
+    n_groups = 4
+    groups = 360 * numpy.arange(n_groups) / n_groups
+    rotations = numpy.reshape(numpy.stack(numpy.meshgrid(groups, groups, groups), -1), (-1, 3))
+    print(rotations)
+    for scene_i, rotation in enumerate(rotations):
+        scene_data = get_scene_data(f'{scene_i:06d}', args, scene_i == 0, rotation)
         render_data.scenes_data[scene_data.name] = scene_data
     return render_data
 
 
 def main():
     parser = argparse.ArgumentParser()
+    # scene
     parser.add_argument('--base_scene_blendfile', default=None)
+
+    # object
     parser.add_argument('--properties_json', default='data/properties/bunny_easy_properties.json')
     parser.add_argument('--shape_dir', default='data/shapes')
     parser.add_argument('--material_dir', default='data/materials')
-    parser.add_argument('--num_scenes', default=10000, type=int)
+
+    # output
+    parser.add_argument('--num_scenes', default=10, type=int)
     parser.add_argument('--save_blend', default=False, type=bool)
-    parser.add_argument('--output_dir', default='./output/bunny_10000_valid/')
+    parser.add_argument('--output_dir', default='./output/clevr_discrete_90/')
     parser.add_argument('--render_name', default='render', type=str)
     parser.add_argument('--device_type', default='OPTIX', type=str, choices=('CPU', 'CUDA', 'OPTIX'))
+
+    # image
     parser.add_argument('--width', default=256, type=int)
     parser.add_argument('--height', default=256, type=int)
     parser.add_argument('--render_num_samples', default=512, type=int)
