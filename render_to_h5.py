@@ -30,8 +30,8 @@ def write(render_data, render_dir, h5f):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--render_dir', type=str, default='./output/bunny_1d')
-    parser.add_argument('--output_h5', type=str, default='./output/bunny_1d.h5')
+    parser.add_argument('--render_dir', type=str, default='./output/bunny_1d_valid')
+    parser.add_argument('--output_h5', type=str, default='./output/bunny_1d_valid.h5')
     args = parser.parse_args()
 
     with h5py.File(args.output_h5, 'w') as h5f:

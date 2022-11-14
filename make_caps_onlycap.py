@@ -36,8 +36,8 @@ def get_object_data(shape_name, scene_data: lib.data.scene_data.SceneData):
 
     scale_pair = ('scale_down', numpy.array([0.10, 0.10, 0.10]))
 
-    x = random.uniform(-2.0, 2.0)
-    y = random.uniform(-2.0, 2.0)
+    x = random.uniform(-1.5, 1.5)
+    y = random.uniform(-1,5, 1.5)
     z = 1.3085 * 0.5 if shape_name == 'swell_bottle' else 0.2796 * 0.5
     r_x = 0
     r_y = 0
@@ -150,9 +150,9 @@ def main():
     parser.add_argument('--material_dir', default='data/materials')
 
     # output
-    parser.add_argument('--num_renders', default=1, type=int)
+    parser.add_argument('--num_renders', default=10, type=int)
     parser.add_argument('--num_scenes', default=10, type=int)
-    parser.add_argument('--output_dir', default='./output/caps_onlycap/')
+    parser.add_argument('--output_dir', default='./output/caps_onlycap_small/')
     parser.add_argument('--save_blend', default=False, type=bool)
     parser.add_argument('--device_type', default='OPTIX', type=str, choices=('CPU', 'CUDA', 'OPTIX'))
     parser.add_argument('--modes', default=('rgba', 'nocs', 'depth'), type=int, nargs='+')
