@@ -6,7 +6,7 @@ from pygifsicle import pygifsicle
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--render_dir', type=str, default='output/bunny/first 100')
+    parser.add_argument('--render_dir', type=str, default='output/caps_onlycap_10/000000')
     args = parser.parse_args()
 
     camera_mode_frames = {}
@@ -35,16 +35,16 @@ if __name__ == '__main__':
             else:
                 all_frames.append(frame)
 
-    # frames = numpy.concatenate(all_frames)
-    # frames = numpy.reshape(frames, (3, 6, 3, 30, 320, 480, 4))
-    # frames = numpy.transpose(frames, (3, 2, 0, 1, 4, 5, 6))
-    # frames = numpy.reshape(frames, (30, 9, 6, 320, 480, 4))
-    # frames = numpy.transpose(frames, (0, 1, 3, 2, 4, 5))
-    # frames = numpy.reshape(frames, (30, 2880, 2880, 4))
-    # frames = [frame for frame_i, frame in enumerate(frames)]
-    # gif_path = os.path.join(args.render_dir, f'all.gif')
-    # imageio.mimsave(gif_path, frames, duration=0.25)
-    # pygifsicle.optimize(gif_path)
+    frames = numpy.concatenate(all_frames)
+    frames = numpy.reshape(frames, (3, 6, 3, 30, 320, 480, 4))
+    frames = numpy.transpose(frames, (3, 2, 0, 1, 4, 5, 6))
+    frames = numpy.reshape(frames, (30, 9, 6, 320, 480, 4))
+    frames = numpy.transpose(frames, (0, 1, 3, 2, 4, 5))
+    frames = numpy.reshape(frames, (30, 2880, 2880, 4))
+    frames = [frame for frame_i, frame in enumerate(frames)]
+    gif_path = os.path.join(args.render_dir, f'all.gif')
+    imageio.mimsave(gif_path, frames, duration=0.25)
+    pygifsicle.optimize(gif_path)
 
     for camera_mode, frames in camera_mode_frames.items():
         gif_path = os.path.join(args.render_dir, f'{camera_mode}.gif')

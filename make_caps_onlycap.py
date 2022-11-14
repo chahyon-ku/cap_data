@@ -34,11 +34,11 @@ def get_object_data(shape_name, scene_data: lib.data.scene_data.SceneData):
 
     material_pair = None
 
-    scale_pair = ('scale_down', numpy.array([0.15, 0.15, 0.15]))
+    scale_pair = ('scale_down', numpy.array([0.10, 0.10, 0.10]))
 
     x = random.uniform(-2.0, 2.0)
     y = random.uniform(-2.0, 2.0)
-    z = 1.3085 * 0.75 if shape_name == 'swell_bottle' else 0.2796 * 0.75
+    z = 1.3085 * 0.5 if shape_name == 'swell_bottle' else 0.2796 * 0.5
     r_x = 0
     r_y = 0
     r_z = 0
@@ -113,8 +113,8 @@ def get_render_data(name, args) -> lib.data.render_data.RenderData:
             render_data.scenes_data[scene_data.name] = scene_data
 
             bottle_pose = scene_data.objects_data['swell_bottle_0'].pose
-            cap_goal_pose = numpy.array([[bottle_pose[0], bottle_pose[1], (1.3085 * 1.5) * random.uniform(1.1, 1.5), 0, 0, 0],
-                                         [bottle_pose[0], bottle_pose[1], 1.3085 * 1.5, 0, 0, 0]])
+            cap_goal_pose = numpy.array([[bottle_pose[0], bottle_pose[1], (1.3085 * 1.0) * random.uniform(1.1, 1.5), 0, 0, 0],
+                                         [bottle_pose[0], bottle_pose[1], 1.3085 * 1.0, 0, 0, 0]])
         elif i_stage < 2:
             scene_data = copy.deepcopy(scene_data)
             scene_data.name = f'{i_scene:06d}'
