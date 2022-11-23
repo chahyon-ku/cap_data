@@ -21,7 +21,7 @@ def write(render_data, render_dir, h5f):
             for mode in render_data.modes:
                 render_data.output_dir = render_dir
                 png_path = os.path.join(render_data.output_dir, render_data.name,
-                                        f'{scene_name}_{camera_name}_{mode}.png')
+                                        f'{mode}_{scene_name}_{camera_name}.png')
                 with Image.open(png_path) as imf:
                     buf = io.BytesIO()
                     imf.save(buf, 'png')
@@ -30,8 +30,8 @@ def write(render_data, render_dir, h5f):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--render_dir', type=str, default='./output/bunny_1d_valid')
-    parser.add_argument('--output_h5', type=str, default='./output/bunny_1d_valid.h5')
+    parser.add_argument('--render_dir', type=str, default='./output/caps_bc_2step')
+    parser.add_argument('--output_h5', type=str, default='./output/caps_bc_2step.h5')
     args = parser.parse_args()
 
     with h5py.File(args.output_h5, 'w') as h5f:

@@ -4,6 +4,7 @@ import numpy
 
 import lib.data
 import lib.blend_nocs
+import lib.blend_segmentation
 import os
 import numpy as np
 import cv2
@@ -58,6 +59,10 @@ def blend_render(render_data: lib.data.render_data.RenderData):
                     bpy.context.scene.cycles.samples = 1
                     bpy.context.scene.render.image_settings.file_format = 'PNG'
                     lib.blend_nocs.blend_nocs()
+                elif mode == 'segmentation':
+                    bpy.context.scene.cycles.samples = 1
+                    bpy.context.scene.render.image_settings.file_format = 'PNG'
+                    lib.blend_segmentation.blend_segmentation()
                 elif mode == 'depth':
                     bpy.context.scene.cycles.samples = 1
                     bpy.context.scene.render.image_settings.file_format = 'OPEN_EXR'
@@ -70,7 +75,7 @@ def blend_render(render_data: lib.data.render_data.RenderData):
                 if ob.type == "CAMERA":
                     bpy.context.scene.camera = ob
                     os.makedirs(output_dir, exist_ok=True)
-                    bpy.context.scene.render.filepath = f'{output_dir}/{render_data.name}/{scene_name}_{ob.name}_{mode}'
+                    bpy.context.scene.render.filepath = f'{output_dir}/{render_data.name}/{mode}_{scene_name}_{ob.name}'
                     bpy.ops.render.render(write_still=True, use_viewport=True)
 
                     if mode == 'depth':

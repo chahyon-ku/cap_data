@@ -6,7 +6,7 @@ from pygifsicle import pygifsicle
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--render_dir', type=str, default='output/caps_onlycap_10/000000')
+    parser.add_argument('--render_dir', type=str, default='output/caps_onlycap_small/000002')
     args = parser.parse_args()
 
     camera_mode_frames = {}
